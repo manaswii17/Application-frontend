@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KRISHIMITRA Dashboard</title>
+<style>
+  /* Reset and Base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background-color: #f9fafb;
+    color: #374151;
+    line-height: 1.5;
+  }
+  button {
+    cursor: pointer;
+  }
+  h1, h2, h3 {
+    margin: 0;
+    font-weight: 700;
+  }
+  /* Container */
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  /* Header */
+  header {
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    font-size: 1.25rem;
+    color: #1e293b;
+  }
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #22c55e; /* green */
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .machine-status-text {
+    text-transform: capitalize;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  /* Section Cards */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+  }
+
+  /* Machine Status */
+  .machine-status-section {
+    background: linear-gradient(to right, #22c55e, #2563eb);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-radius: 15px;
+    margin-bottom: 24px;
+  }
+  .machine-status-section .status-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .machine-status-status {
+    font-size: 1rem;
+    margin-top: 4px;
+    opacity: 0.8;
+    text-transform: capitalize;
+  }
+  .btn-toggle {
+    background: rgba(255 255 255 / 0.2);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-toggle:hover {
+    background: rgba(255 255 255 / 0.35);
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .metric-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+  }
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .metric-value.red {
+    color: #dc2626;
+  }
+  .metric-unit {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  .metric-value.green {
+    color: #22c55e;
+  }
+  .metric-value.orange {
+    color: #f97316;
+  }
+
+  /* Progress Bar */
+  .progress-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+    margin-bottom: 24px;
+  }
+  .progress-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 1.125rem;
+    color: #1e293b;
+  }
+  .progress-bg {
+    width: 100%;
+    height: 14px;
+    background: #e5e7eb;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 14px;
+    background: #22c55e;
+    width: 65%; /* fixed for demo */
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 6px;
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .action-btn {
+    flex: 1;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    color: #2563eb;
+    font-weight: 600;
+    padding: 16px 0;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+  .action-btn:hover {
+    background: #dbeafe;
+  }
+  .icon {
+    font-size: 20px;
+  }
+
+  /* Savings Section */
+  .savings-total {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: white;
+    padding: 28px 0;
+    border-radius: 15px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  .savings-subheading {
+    color: #d1fae5;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .saving-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .saving-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .saving-icon {
+    background: #dbeafe;
+    padding: 12px;
+    border-radius: 10px;
+  }
+  .saving-title {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .saving-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  .saving-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #16a34a;
+    text-align: right;
+  }
+  .saving-subinfo {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: right;
+  }
+
+  /* Alerts Section */
+  .alert-card {
+    border-left-width: 6px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .alert-red {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #b91c1c;
+  }
+  .alert-yellow {
+    background: #fef3c7;
+    border-color: #ca8a04;
+    color: #92400e;
+  }
+  .alert-blue {
+    background: #dbeafe;
+    border-color: #2563eb;
+    color: #1e40af;
+  }
+  .alert-icon {
+    font-size: 24px;
+  }
+  .alert-content {
+    flex-grow: 1;
+  }
+  .alert-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .alert-text {
+    font-size: 0.9rem;
+  }
+  .alert-button {
+    background-color: currentColor;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    user-select: none;
+  }
+  .alert-button.red {
+    background-color: #dc2626;
+  }
+  .alert-button.yellow {
+    background-color: #ca8a04;
+  }
+  .alert-button.blue {
+    background-color: #2563eb;
+  }
+
+  /* Safety Guidelines */
+  .safety-cards {
+    background: white;
+    padding: 18px 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+  }
+  .safety-cards h3 {
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #1e293b;
+  }
+  .safety-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .safety-list li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  .safety-list li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 6px;
+    width: 10px; height: 10px;
+    background-color: #22c55e; /* green dot */
+    border-radius: 50%;
+  }
+
+  /* Help Section */
+  .help-section {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+  }
+  .help-section h3 {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1e293b;
+  }
+  .lang-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .lang-button {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    font-weight: 600;
+    text-align: center;
+    user-select: none;
+    color: #374151;
+  }
+  .lang-button.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+  }
+
+  .help-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .help-icon {
+    background: #e0e7ff;
+    padding: 10px;
+    border-radius: 12px;
+    color: #3730a3;
+    font-size: 20px;
+  }
+  .help-title {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .help-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  .help-button {
+    margin-left: auto;
+    background: #3730a3;
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    user-select: none;
+    cursor: default;
+  }
+
+  /* FAQ Style replaced by visible block */
+  .faq-section {
+    background: white;
+    padding: 18px 20px;
+    border-radius: 12px;
+  }
+  .faq-section h3 {
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #1e293b;
+  }
+  .faq-item {
+    margin-bottom: 14px;
+  }
+  .faq-question {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  .faq-answer {
+    font-size: 0.9rem;
+    color: #475569;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KRISHIMITRA</h1>
+  <div>
+    <span class="status-indicator"></span>
+    <span class="machine-status-text">working</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Machine Status Section -->
+  <section class="machine-status-section">
+    <div>
+      <div class="status-label">Machine Status</div>
+      <div class="machine-status-status">working</div>
+    </div>
+    <button class="btn-toggle" disabled>
+      &#10073;&#10073; Start/Stop
+    </button>
+  </section>
+
+  <!-- Key Metrics -->
+  <section class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-title">Progress</div>
+      <div class="metric-value green">65.0%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Battery</div>
+      <div class="metric-value">78%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Area Completed</div>
+      <div>
+        <div class="metric-value">4.2</div>
+        <div class="metric-unit">acres</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Time Remaining</div>
+      <div>
+        <div class="metric-value orange">2.5</div>
+        <div class="metric-unit">hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Progress Bar -->
+  <section class="progress-section">
+    <div class="progress-title">Field Coverage</div>
+    <div class="progress-bg">
+      <div class="progress-fill"></div>
+    </div>
+    <div class="progress-labels">
+      <div>Area Completed</div>
+      <div>65.0% complete</div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <button class="action-btn" title="Field Map">
+      <span class="icon" aria-hidden="true">&#128506;</span>  
+      <span>Field Map</span>
+    </button>
+    <button class="action-btn" title="Alerts">
+      <span class="icon" aria-hidden="true">&#9888;</span>  
+      <span>Alerts</span>
+    </button>
+  </section>
+
+  <!-- Savings Section -->
+  <section>
+    <div class="card savings-total">
+      ₹8,450<br />
+      <div class="savings-subheading">Total Savings This Season</div>
+    </div>
+
+    <div class="card saving-card">
+      <div class="saving-info">
+        <div class="saving-icon">&#128101;</div>
+        <div>
+          <div class="saving-title">Labor Cost Saved</div>
+          <div class="saving-desc">Manual weeding cost avoided</div>
+        </div>
+      </div>
+      <div>
+        <div class="saving-amount">₹5,200</div>
+        <div class="saving-subinfo">32 labor hours</div>
+      </div>
+    </div>
+
+    <div class="card saving-card">
+      <div class="saving-info">
+        <div class="saving-icon">&#128167;</div>
+        <div>
+          <div class="saving-title">Pesticide Cost Saved</div>
+          <div class="saving-desc">Chemical herbicide cost avoided</div>
+        </div>
+      </div>
+      <div>
+        <div class="saving-amount">₹2,150</div>
+        <div class="saving-subinfo">15 liters saved</div>
+      </div>
+    </div>
+
+    <div class="card saving-card">
+      <div class="saving-info">
+        <div class="saving-icon">&#9889;</div>
+        <div>
+          <div class="saving-title">Time Saved</div>
+          <div class="saving-desc">Faster than manual methods</div>
+        </div>
+      </div>
+      <div>
+        <div class="saving-amount">75%</div>
+        <div class="saving-subinfo">Time efficiency</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alerts Section -->
+  <section>
+    <h2 class="card-header">Active Alerts</h2>
+
+    <div class="alert-card alert-red">
+      <div class="alert-icon">&#128267;</div>
+      <div class="alert-content">
+        <div class="alert-title">Low Battery Warning</div>
+        <div class="alert-text">Battery at 78%. Return to charging station soon.</div>
+      </div>
+      <button class="alert-button red">Dismiss</button>
+    </div>
+    
+    <div class="alert-card alert-yellow">
+      <div class="alert-icon">&#9881;</div>
+      <div class="alert-content">
+        <div class="alert-title">Maintenance Due</div>
+        <div class="alert-text">Scheduled maintenance due in 2 days. Clean blades and check oil.</div>
+      </div>
+      <button class="alert-button yellow">Schedule</button>
+    </div>
+
+    <div class="alert-card alert-blue">
+      <div class="alert-icon">&#9729;</div>
+      <div class="alert-content">
+        <div class="alert-title">Weather Alert</div>
+        <div class="alert-text">Rain expected tomorrow. Plan indoor maintenance activities.</div>
+      </div>
+      <button class="alert-button blue">View Forecast</button>
+    </div>
+  </section>
+
+  <!-- Safety Guidelines -->
+  <section class="safety-cards">
+    <h3>Safety Guidelines</h3>
+    <ul class="safety-list">
+      <li>Keep 10m distance when machine is operating</li>
+      <li>Stop operation during rain or high winds</li>
+      <li>Check for obstacles before starting</li>
+      <li>Regular blade inspection required</li>
+    </ul>
+  </section>
+
+  <!-- Help Section -->
+  <section class="help-section">
+    <h2 class="card-header">Help</h2>
+    <h3>Select Language</h3>
+    <div class="lang-buttons">
+      <div class="lang-button active">English</div>
+      <div class="lang-button">हिंदी</div>
+      <div class="lang-button">मराठी</div>
+    </div>
+
+    <div class="help-card">
+      <div class="help-icon">&#9654;</div>
+      <div>
+        <div class="help-title">Video Tutorials</div>
+        <div class="help-desc">Step-by-step video guides in your language</div>
+      </div>
+      <button class="help-button">Watch</button>
+    </div>
+
+    <div class="help-card">
+      <div class="help-icon">&#128214;</div>
+      <div>
+        <div class="help-title">User Manual</div>
+        <div class="help-desc">Detailed instructions and troubleshooting</div>
+      </div>
+      <button class="help-button">Read</button>
+    </div>
+
+    <div class="help-card">
+      <div class="help-icon">&#128222;</div>
+      <div>
+        <div class="help-title">Contact Support</div>
+        <div class="help-desc">24/7 helpline: +91-9876543210</div>
+      </div>
+      <button class="help-button">Call</button>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <h3>Common Questions</h3>
+
+    <div class="faq-item">
+      <div class="faq-question">How long does the battery last?</div>
+      <div class="faq-answer">The battery typically lasts 4-6 hours depending on field conditions and usage intensity.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">What to do if machine gets stuck?</div>
+      <div class="faq-answer">Use the emergency stop button, clear the obstruction, and restart. Contact support if problem persists.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">How often should I clean the machine?</div>
+      <div class="faq-answer">Clean after each use, especially the cutting blades and sensors. Deep cleaning weekly.</div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
